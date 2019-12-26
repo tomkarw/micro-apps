@@ -43,9 +43,9 @@ def connect_wifi():
     print('Network config: ', sta_if.ifconfig())
 
 
-def call_webhook():
+def call_webhook(url, data):
     print('Invoking webhook')
-    response = urequests.post(config.WEBHOOK_URL)
+    response = urequests.post(url, json=data)
     if response is not None and response.status_code < 400:
         print('Webhook invoked')
     else:
@@ -53,11 +53,21 @@ def call_webhook():
         raise RuntimeError('Webhook failed')
 
 
+def button_pressed():
+    button = machine.Pin(config.BUTTON_PIN, machine.Pin.IN, machine.Pin.PULL_UP)
+    pressed_time = 0
+    while not button.value():
+        time.sleep(1)
+        pressed_time += 1
+    return pressed_time
+
+
 def run():
     try:
         if machine.reset_cause() == machine.DEEPSLEEP_RESET:
+            pressed_time = button_pressed()
             connect_wifi()
-            call_webhook()
+            call_webhook(config.WEBHOOK_BUTTON_PHONE_URL, {'value1': pressed_time})
     except Exception as e:
         sys.print_exception(e)
         show_error()
