@@ -12,5 +12,5 @@ WEBHOOK_WEATHER_URL = 'https://api.thingspeak.com/update?api_key=NMZ8BMSA3ZV2CTR
                          'field2={humidity}'
 
 DISPLAY_TIME = 10
-LOG_INTERVAL = 50
+LOG_INTERVAL = 60
 

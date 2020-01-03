@@ -6,6 +6,7 @@ import sys
 import machine
 import network
 import urequests
+import uasyncio as asyncio
 import framebuf
 
 # Components
@@ -26,19 +27,19 @@ def is_debug():
     return False
 
 
-def show_error():
+async def show_error():
     led = machine.Pin(config.LED_PIN, machine.Pin.OUT)
 
     for _ in range(3):
         led.on()
-        time.sleep(0.5)
+        await asyncio.sleep(0.5)
         led.off()
-        time.sleep(0.5)
+        await asyncio.sleep(0.5)
 
     led.on()
 
 
-def connect_wifi():
+async def connect_wifi():
     ap_if = network.WLAN(network.AP_IF)
     ap_if.active(False)
     sta_if = network.WLAN(network.STA_IF)
@@ -47,21 +48,21 @@ def connect_wifi():
         sta_if.active(True)
         sta_if.connect(*config.WIFI_GIERYMSKIEGO)
         while not sta_if.isconnected():
-            time.sleep(1)
+            await asyncio.sleep(1)
     print('Network config: ', sta_if.ifconfig())
 
 
-def get_temperature_and_humidity():
+async def get_temperature_and_humidity():
     d = dht.DHT22(machine.Pin(config.DHT22_PIN))
-    d.measure()
+    await d.measure()
     return d.temperature(), d.humidity()
 
 
-def log_weather_data(temperature, humidity):
+async def log_weather_data(temperature, humidity):
     print('Invoking weather webhook')
     url = config.WEBHOOK_WEATHER_URL.format(temperature=temperature,
                                             humidity=humidity)
-    response = urequests.get(url)
+    response = await urequests.get(url)
     if response is not None and response.status_code < 400:
         print('Webhook invoked')
     else:
@@ -78,8 +79,8 @@ def deepsleep(sleep_time):
     machine.deepsleep()
 
 
-def load_image(filename):
-    with open(filename, 'rb') as f:
+async def load_image(filename):
+    async with open(filename, 'rb') as f:
         f.readline()
         f.readline()
         width, height = [int(v) for v in f.readline().split()]
@@ -120,38 +121,27 @@ def display_temperature_and_humidity(temperature, humidity):
     font_writer.printstring(text)
 
     display.show()
-
-
-def end_display():
-    i2c = machine.I2C(scl=machine.Pin(config.DISPLAY_SCL_PIN),
-                      sda=machine.Pin(config.DISPLAY_SDA_PIN))
-    display = ssd1306.SSD1306_I2C(128, 64, i2c)
+    asyncio.sleep(config.DISPLAY_TIME)
     display.poweroff()
 
 
-def run():
+async def run():
     sleep_time = config.LOG_INTERVAL
     try:
         start_time = time.time()
-        button = machine.Pin(config.BUTTON_PIN, machine.Pin.IN, machine.Pin.PULL_UP)
-        button_pressed = not button.value()
-        connect_wifi()
-        temperature, humidity = get_temperature_and_humidity()
+        await connect_wifi()
+        temperature, humidity = await get_temperature_and_humidity()
         # TODO: log_weather... throws some heavy error if run after display...
-        if button_pressed:
-            display_temperature_and_humidity(temperature, humidity)
-            display_start_time = time.time()
-        log_weather_data(temperature, humidity)
-        if button_pressed:
-            time.sleep(config.DISPLAY_TIME - time.time() + display_start_time)
-            end_display()
+        await log_weather_data(temperature, humidity)
         # TODO: display only when button pressed
+        await display_temperature_and_humidity(temperature, humidity)
         sleep_time -= time.time() - start_time  # subtract time spent on processing
     except Exception as e:
         sys.print_exception(e)
-        show_error()
+        await show_error()
     if not is_debug():
         deepsleep(sleep_time)
 
-
-run()
+loop = asyncio.get_event_loop()
+loop.create_task(run())  # Schedule run
+loop.run_forever()
