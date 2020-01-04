@@ -145,7 +145,6 @@ def run():
         if button_pressed:
             time.sleep(config.DISPLAY_TIME - time.time() + display_start_time)
             end_display()
-        # TODO: display only when button pressed
         sleep_time -= time.time() - start_time  # subtract time spent on processing
     except Exception as e:
         sys.print_exception(e)

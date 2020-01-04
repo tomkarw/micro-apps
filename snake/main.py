@@ -1,30 +1,17 @@
 import time
 
-import machine
-import ssd1306
-
-from snake import Snake
-
-# LED1_PIN = 2  # D4
-# LED2_PIN = 16  # D0
-
-BUTTON_LEFT_PIN = 5  # D1
-BUTTON_RIGHT_PIN = 4  # D2
-
-DISPLAY_SCL_PIN = 0  # D3
-DISPLAY_SDA_PIN = 14  # D5
-
-# led1 = machine.Pin(LED1_PIN, machine.Pin.OUT)
-# led2 = machine.Pin(LED2_PIN, machine.Pin.OUT)
-
-button_left = machine.Pin(BUTTON_LEFT_PIN, machine.Pin.IN, machine.Pin.PULL_UP)
-button_right = machine.Pin(BUTTON_RIGHT_PIN, machine.Pin.IN, machine.Pin.PULL_UP)
-
-i2c = machine.I2C(scl=machine.Pin(DISPLAY_SCL_PIN),
-                  sda=machine.Pin(DISPLAY_SDA_PIN))
-if 60 not in i2c.scan():
-    raise RuntimeError('Cannot find display')
-display = ssd1306.SSD1306_I2C(128, 64, i2c)
+try:
+    from .config import *
+except ValueError:
+    from config import *
+try:
+    from .snake import Snake
+except ValueError:
+    from snake import Snake
+try:
+    from .scoreboard import ScoreBoard
+except ValueError:
+    from scoreboard import ScoreBoard
 
 
 class SnakeGame:
@@ -39,6 +26,8 @@ class SnakeGame:
         self.rate = rate
 
         self.snake = Snake(width//pixel, height//pixel)
+
+        self.scorefile = 'scores.txt'
 
     # TODO: optimise drawing (don't have to redraw everything)
     def draw(self):
@@ -56,13 +45,16 @@ class SnakeGame:
 
     # TODO: Best scores ranking with name input
     def game_over(self):
-        time.sleep(1.5)
+        score = len(self.snake.body)
         self.display.fill(0)
         self.display.text('Game Over!', 0, 0)
-        self.display.text('Score: {s}'.format(s=len(self.snake.body)), 0, 16)
-        self.display.text('Click any button', 0, 32)
-        self.display.text('to play again.', 0, 48)
+        self.display.text('Score: {s}'.format(s=score), 0, 16)
         self.display.show()
+        time.sleep(1.5)
+        sb = ScoreBoard(self.scorefile, self.display)
+        name = sb.get_name()
+        sb.save_score_to_file(name, score)
+        sb.show_scoreboard()
 
     def run(self):
         i = 0
@@ -80,6 +72,7 @@ class SnakeGame:
 
             if i == 0:
                 if self.snake.has_collided():
+                    time.sleep(1.5)
                     self.game_over()
                     break
                 self.snake.move(ate=self.snake.ate())

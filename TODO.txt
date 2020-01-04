@@ -2,9 +2,21 @@
 ### List of all future developments around this project ###
 ###########################################################
 
+#######################
+### Weather Station ###
+#######################
+
 ### Software ###
 # TODO: Set up own server for recieving weather data (in place of ThingSpeak.com)
 
 ### Hardware ###
 # TODO: Develop 2 more boards to leave at my and Natalia's homes
 # TODO: Display data on LCD only when button was pressed (save screen and energy)
+# TODO: Charge it with batteries
+
+######################
+### Gaming console ###
+######################
+
+# Software ###
+# TODO: Tetris game
