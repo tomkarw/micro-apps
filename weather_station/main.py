@@ -133,18 +133,18 @@ def run():
     sleep_time = config.LOG_INTERVAL
     try:
         start_time = time.time()
-        button = machine.Pin(config.BUTTON_PIN, machine.Pin.IN, machine.Pin.PULL_UP)
-        button_pressed = not button.value()
+        # button = machine.Pin(config.BUTTON_PIN, machine.Pin.IN, machine.Pin.PULL_UP)
+        # button_pressed = not button.value()
         connect_wifi()
         temperature, humidity = get_temperature_and_humidity()
         # TODO: log_weather... throws some heavy error if run after display...
-        if button_pressed:
-            display_temperature_and_humidity(temperature, humidity)
-            display_start_time = time.time()
+        # if button_pressed:
+        #     display_temperature_and_humidity(temperature, humidity)
+        #     display_start_time = time.time()
         log_weather_data(temperature, humidity)
-        if button_pressed:
-            time.sleep(config.DISPLAY_TIME - time.time() + display_start_time)
-            end_display()
+        # if button_pressed:
+        #     time.sleep(config.DISPLAY_TIME - time.time() + display_start_time)
+        #     end_display()
         sleep_time -= time.time() - start_time  # subtract time spent on processing
     except Exception as e:
         sys.print_exception(e)

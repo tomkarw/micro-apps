@@ -43,7 +43,6 @@ class SnakeGame:
         )
         self.display.show()
 
-    # TODO: Best scores ranking with name input
     def game_over(self):
         score = len(self.snake.body)
         self.display.fill(0)
