@@ -2,11 +2,10 @@
 ### List of all future developments around this project ###
 ###########################################################
 
+# Repo
+TODO: add pic of snake game running
+TODO: add diagram for snake game board setup
 
-######################
-### Gaming console ###
-######################
-
-# Software ###
+# Software
 TODO: Optimise screen drawing in Snake game
 TODO: Make a Tetris game

@@ -7,11 +7,12 @@ except ValueError:
 
 ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
+
 class ScoreBoard:
 
-    def __init__(self, scorefile, display):
-        self.scorefile = scorefile
-        self.display = display
+    def __init__(self, score_file, display_):
+        self.score_file = score_file
+        self.display = display_
 
     def get_name(self):
         d = self.display
@@ -25,8 +26,8 @@ class ScoreBoard:
             d.text('ABCDEFGHIJKLM', 0, 36)
             d.text('NOPQRSTUVWXYZ', 0, 48)
             shift = (i > 12)
-            d.fill_rect(i*8-shift*8*13, 36+12*shift, 8, 8, 1)
-            d.text(ALPHABET[i], i*8-shift*8*13, 36+12*shift, 0)
+            d.fill_rect(i * 8 - shift * 8 * 13, 36 + 12 * shift, 8, 8, 1)
+            d.text(ALPHABET[i], i * 8 - shift * 8 * 13, 36 + 12 * shift, 0)
             d.show()
             right = not button_right.value()
             left = not button_left.value()
@@ -34,7 +35,7 @@ class ScoreBoard:
                 name += ALPHABET[i]
                 i = 0
             if left:
-                i = (i+1) % len(ALPHABET)
+                i = (i + 1) % len(ALPHABET)
             time.sleep(0.05)
         return name
 
@@ -44,19 +45,19 @@ class ScoreBoard:
         d.fill(0)
         d.show()
         d.text('Scoreboard:', 0, 0)
-        with open(self.scorefile, 'r') as f:
+        with open(self.score_file, 'r') as f:
             for i in range(1, 6):
                 name, score = f.readline().strip('\n').split(',')
                 d.text("{i}. {name} {score}".format(i=i, name=name, score=score),
-                       0, i*10)
+                       0, i * 10)
             d.show()
         while button_left.value() and button_right.value():
             time.sleep(0.1)
 
     def save_score_to_file(self, name, score):
-        with open(self.scorefile, 'r') as f:
+        with open(self.score_file, 'r') as f:
             scores = list(map(lambda x: x.split(','), f.read().split('\n')))[:20]
             scores += [[name, str(score)]]
             scores = sorted(scores, reverse=True, key=lambda x: int(x[1]))
-        with open(self.scorefile, 'w') as f:
+        with open(self.score_file, 'w') as f:
             f.write('\n'.join(list(map(','.join, scores))))

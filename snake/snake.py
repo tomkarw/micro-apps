@@ -39,9 +39,9 @@ class Snake:
         return self.body[0]
 
     def create(self):
-        x, y = self.width//2, self.height//2
+        x, y = self.width // 2, self.height // 2
         for i in range(SNAKE_LEN):
-            self.body.append(((x-i) % self.width, y))
+            self.body.append(((x - i) % self.width, y))
 
     def place_food(self):
         x = random.getrandbits(int(math.log(self.width, 2)))

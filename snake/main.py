@@ -25,21 +25,21 @@ class SnakeGame:
         self.fps = fps
         self.rate = rate
 
-        self.snake = Snake(width//pixel, height//pixel)
+        self.snake = Snake(width // pixel, height // pixel)
 
-        self.scorefile = 'scores.txt'
+        self.score_file = 'scores.txt'
 
     # TODO: optimise drawing (don't have to redraw everything)
     def draw(self):
         self.display.fill(0)
         for segment in self.snake.body:
             self.display.fill_rect(
-                segment[0]*self.pixel,
-                segment[1]*self.pixel, 4, 4, 1
+                segment[0] * self.pixel,
+                segment[1] * self.pixel, 4, 4, 1
             )
         self.display.fill_rect(
-            self.snake.food[0]*self.pixel,
-            self.snake.food[1]*self.pixel, 4, 4, 1
+            self.snake.food[0] * self.pixel,
+            self.snake.food[1] * self.pixel, 4, 4, 1
         )
         self.display.show()
 
@@ -50,7 +50,7 @@ class SnakeGame:
         self.display.text('Score: {s}'.format(s=score), 0, 16)
         self.display.show()
         time.sleep(1.5)
-        sb = ScoreBoard(self.scorefile, self.display)
+        sb = ScoreBoard(self.score_file, self.display)
         name = sb.get_name()
         sb.save_score_to_file(name, score)
         sb.show_scoreboard()
@@ -77,8 +77,8 @@ class SnakeGame:
                 self.snake.move(ate=self.snake.ate())
                 self.draw()
 
-            i = (i+1) % self.rate
-            time.sleep(1/self.fps)
+            i = (i + 1) % self.rate
+            time.sleep(1 / self.fps)
 
 
 def main():
